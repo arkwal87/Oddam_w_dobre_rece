@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
-from .models import Donation, Institution
 from django.core.paginator import Paginator
+from django.contrib import messages
 
+from .models import Donation, Institution
+from .forms import UserRegistrationForm
 
 # Create your views here.
 
@@ -47,6 +49,21 @@ class LoginView(View):
         return render(request, "login.html")
 
 
+# class RegisterView(View):
+#     def get(self, request):
+#         return render(request, "register.html")
+
+
 class RegisterView(View):
     def get(self, request):
-        return render(request, "register.html")
+        form = UserRegistrationForm()
+        return render(request, "register.html", context={"form": form})
+
+    def post(self, request):
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get("username")
+            messages.success(request, f"Stworzono użytkownika {username}")
+            # return redirect("style_main_page")
+            return redirect("login")
