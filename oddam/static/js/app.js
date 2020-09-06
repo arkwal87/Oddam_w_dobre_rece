@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", function() {
   /**
    * HomePage - Help section
    */
+
+
   class Help {
     constructor($el) {
       this.$el = $el;
@@ -252,4 +254,19 @@ document.addEventListener("DOMContentLoaded", function() {
   if (form !== null) {
     new FormSteps(form);
   }
+
+  if (location.pathname.substring(1) === 'register/'
+      || location.pathname.substring(1) === 'login/'
+      || location.pathname.substring(1) === 'przekaz/') {
+    document.querySelector('.header--main-page').className=""
+  }
+
+  // let my_paginators = document.querySelector(".help--slides-pagination").childNodes
+  // my_paginators.forEach(el=>{
+  //   el.addEventListener("click", function(){
+  //
+  //   })
+  // })
+
 });
+

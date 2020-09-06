@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
-{% block content %}
-</header>
-    <section class="login-page">
-      <h2>Załóż konto</h2>
-      <form method="POST">
-          {% csrf_token %}
-          {{ form|crispy }}
-        <div class="form-group form-group--buttons">
-          <a href="login.html" class="btn btn--without-border">Zaloguj się</a>
-          <button class="btn" type="submit">Załóż konto</button>
-        </div>
-      </form>
-    </section>
-{% endblock content %}
+{% block header %}
+    <header class="">
+        <section class="login-page">
+          <h2>Załóż konto</h2>
+          <form method="POST">
+              {% csrf_token %}
+              {{ form|crispy }}
+            <div class="form-group form-group--buttons">
+              <a href="login.html" class="btn btn--without-border">Zaloguj się</a>
+              <button class="btn" type="submit">Załóż konto</button>
+            </div>
+          </form>
+        </section>
+{% endblock header %}

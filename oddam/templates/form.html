@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
-{% block content %}
+{% block header %}
+    <header class="header--form-page">
       <div class="slogan container container--90">
         <div class="slogan--item">
           <h1>
@@ -28,6 +29,8 @@
         </div>
       </div>
     </header>
+{% endblock header %}
+{% block content %}
 
     <section class="form--steps">
       <div class="form--steps-instructions">

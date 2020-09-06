@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.core.paginator import Paginator
 from django.contrib import messages
+from django.contrib.auth import views as auth_views
 
-from .models import Donation, Institution
-from .forms import UserRegistrationForm
+from .models import Donation, Institution, CustomUser
+from .forms import UserRegistrationForm, UserLoginForm
+
 
 # Create your views here.
 
@@ -26,10 +28,8 @@ class LandingPage(View):
             item_list = Institution.objects.filter(type=item.first().type)
             paginator = Paginator(item_list, 2)
             page = request.GET.get('page')
-            print(page)
             new_item = paginator.get_page(page)
             items[items.index(item)] = new_item
-            print(new_item)
 
         context = ({
             "bag_count": self.count_bags,
@@ -44,14 +44,23 @@ class AddDonation(View):
         return render(request, "form.html")
 
 
-class LoginView(View):
-    def get(self, request):
-        return render(request, "login.html")
+class LoginView(auth_views.LoginView):
+    form_class = UserLoginForm
+    template_name = "login.html"
 
-
-# class RegisterView(View):
+# class LoginView(auth_views.LoginView):
 #     def get(self, request):
-#         return render(request, "register.html")
+#         form = UserLoginForm()
+#         return render(request, "login.html", context={"form": form})
+#
+#     def post(self, request):
+#         form = UserLoginForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("landing_page")
+#         if len(CustomUser.objects.filter(email=request.POST["username"])) == 0:
+#             return redirect("register")
+#         return redirect("login")
 
 
 class RegisterView(View):
