@@ -1,0 +1,8 @@
+{#<option value="" selected="">---------</option>#}
+<ul>
+    {% for object in objects %}
+        <li>
+            {{ object.id }} - {{ object.name }}
+        </li>
+    {% endfor %}
+</ul>

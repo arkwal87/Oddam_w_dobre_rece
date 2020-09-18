@@ -89,7 +89,10 @@
                     <div class="col">
                         <div class="text">
                             {% for category in institution.categories.all %}
-                                {{ category.name }}{% if category != institution.categories.first %}, {% endif %}
+                                {{ category.name }}
+                                {% if category != institution.categories.first %}
+                                    ,
+                                {% endif %}
                             {% endfor %}
                         </div>
                     </div>

@@ -1,0 +1,7 @@
+AJAX view
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Zatwierdź</button>
+</form>

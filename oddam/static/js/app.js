@@ -237,6 +237,12 @@ document.addEventListener("DOMContentLoaded", function() {
       this.$step.parentElement.hidden = this.currentStep >= 6;
 
       // TODO: get data from inputs and show them in summary
+      let bag_number_text = document.querySelectorAll(".summary--text")[0];
+      let bag_number = document.querySelector('input[name="quantity"]').value;
+      bag_number_text.innerHTML = bag_number + " worków w dobrym stanie dla dzieci";
+
+
+
     }
 
     /**
@@ -255,11 +261,15 @@ document.addEventListener("DOMContentLoaded", function() {
     new FormSteps(form);
   }
 
+  form.querySelectorAll('input:checked')
+
+
   if (location.pathname.substring(1) === 'register/'
       || location.pathname.substring(1) === 'login/'
       || location.pathname.substring(1) === 'przekaz/') {
     document.querySelector('.header--main-page').className=""
   }
+
 
   // let my_paginators = document.querySelector(".help--slides-pagination").childNodes
   // my_paginators.forEach(el=>{
@@ -267,6 +277,74 @@ document.addEventListener("DOMContentLoaded", function() {
   //
   //   })
   // })
+
+  document.querySelector('#step2_btn').addEventListener("click", e=>{
+    let checkbox_vals = []
+    let checkedBoxes = document.querySelectorAll('input[name=categories]:checked');
+    console.log("BLA")
+    console.log(checkedBoxes)
+    let my_institutions = document.querySelector("div[data-step='3']").querySelectorAll(".form-group.form-group--checkbox")
+    checkedBoxes.forEach(el=>{
+      checkbox_vals.push(el.value)
+      console.log(el.value)
+    })
+    my_institutions.forEach(el=>{
+      let category = el.querySelector(".description > div:nth-child(3)").textContent
+      console.log(category)
+      if (!checkbox_vals.includes(category)){
+        el.style.display = "none"
+      }
+    })
+  })
+
+  document.querySelector("#step4_btn").addEventListener("click",  _ =>{
+      let form_data = $( "form" ).serializeArray();
+      console.log(form_data);
+      let form_dict_data = {"categories": []};
+      form_data.forEach(el=>{
+        if (el.name === "categories") {
+          form_dict_data[el.name].push(el.value)
+        } else {
+          form_dict_data[el.name] = el.value
+        }
+      });
+      console.log(form_dict_data);
+      document.querySelector("#form_categories").innerHTML =
+          form_dict_data["quantity"] +
+          " worków " +
+          form_dict_data["categories"].join(" oraz ").toLowerCase();
+      document.querySelector("#form_institution").innerHTML = "Dla " + form_dict_data["organization"];
+      document.querySelector("#form_address > li:nth-child(1)").innerHTML = form_dict_data["address"];
+      document.querySelector("#form_address > li:nth-child(2)").innerHTML = form_dict_data["city"];
+      document.querySelector("#form_address > li:nth-child(3)").innerHTML = form_dict_data["zip_code"];
+      document.querySelector("#form_address > li:nth-child(4)").innerHTML = form_dict_data["phone_number"];
+
+      document.querySelector("#form_pickup_data > li:nth-child(1)").innerHTML = form_dict_data["pick_up_date"];
+      document.querySelector("#form_pickup_data > li:nth-child(2)").innerHTML = form_dict_data["pick_up_time"];
+      document.querySelector("#form_pickup_data > li:nth-child(3)").innerHTML = form_dict_data["pick_up_comment"];
+
+      })
+
+
+    $('#form').on('submit', function (e) {
+        let my_serialized_data = $(this).serialize();
+        console.log(my_serialized_data)
+      e.preventDefault();
+
+
+      $.ajax({
+        type: "POST",
+        url: "/ajax/", /* django ajax posting url  */
+        data: my_serialized_data,
+        // dataType: "json"
+        }
+
+        )
+  })
+
+
+
+
 
 });
 

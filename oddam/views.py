@@ -1,11 +1,16 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import serializers
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.core.paginator import Paginator
 from django.contrib import messages
-from django.contrib.auth import views as auth_views
+from django.contrib.auth import views as auth_views, get_user_model
+from django.views.generic import CreateView, DetailView
 
-from .models import Donation, Institution, CustomUser
-from .forms import UserRegistrationForm, UserLoginForm
+from .models import Donation, Institution, Category
+from accounts.models import User
+from .forms import UserRegistrationForm, UserLoginForm, AjaxForm
 
 
 # Create your views here.
@@ -25,11 +30,12 @@ class LandingPage(View):
             Institution.objects.filter(type="LOK")
         ]
         for item in items:
-            item_list = Institution.objects.filter(type=item.first().type)
-            paginator = Paginator(item_list, 2)
-            page = request.GET.get('page')
-            new_item = paginator.get_page(page)
-            items[items.index(item)] = new_item
+            if Institution.objects.filter(type=item.first()):
+                item_list = Institution.objects.filter(type=item.first().type)
+                paginator = Paginator(item_list, 3)
+                page = request.GET.get('page')
+                new_item = paginator.get_page(page)
+                items[items.index(item)] = new_item
 
         context = ({
             "bag_count": self.count_bags,
@@ -41,26 +47,33 @@ class LandingPage(View):
 
 class AddDonation(View):
     def get(self, request):
-        return render(request, "form.html")
+        context = {
+            "category_list": Category.objects.all(),
+            "institution_list": Institution.objects.all()
+        }
+        return render(request, "form.html", context=context)
+
+    def post(self, request):
+        print(request.POST)
 
 
 class LoginView(auth_views.LoginView):
     form_class = UserLoginForm
     template_name = "login.html"
 
-# class LoginView(auth_views.LoginView):
-#     def get(self, request):
-#         form = UserLoginForm()
-#         return render(request, "login.html", context={"form": form})
-#
-#     def post(self, request):
-#         form = UserLoginForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("landing_page")
-#         if len(CustomUser.objects.filter(email=request.POST["username"])) == 0:
-#             return redirect("register")
-#         return redirect("login")
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            User = get_user_model()
+            if User.objects.filter(email=form.cleaned_data['username']).exists():
+                return self.form_invalid(form)
+            return redirect("register")
 
 
 class RegisterView(View):
@@ -76,3 +89,35 @@ class RegisterView(View):
             messages.success(request, f"Stworzono użytkownika {username}")
             # return redirect("style_main_page")
             return redirect("login")
+        return redirect("register")
+
+
+class AjaxView(View):
+    form_class = AjaxForm
+    template_name = "ajax.html"
+
+    def get(self, *args, **kwargs):
+        form = self.form_class()
+        donations = Donation.objects.all()
+        return render(self.request, self.template_name, {"form": form, "donations": donations})
+
+    def post(self, *args, **kwargs):
+        if self.request.is_ajax():
+            form = self.form_class(self.request.POST)
+            import pdb; pdb.set_trace()
+            if form.is_valid():
+                print(form.data)
+                form.save()
+                return JsonResponse({}, status=200)
+            return JsonResponse({}, status=400)
+        return JsonResponse({}, status=400)
+
+
+class ProfileDetailView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = "profile_view.html"
+
+    def get_object(self, **kwargs):
+        # id_ = self.kwargs.get("pk")
+        id_ = self.request.user.id
+        return get_object_or_404(User, pk=id_)

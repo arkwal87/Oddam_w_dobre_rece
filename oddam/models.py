@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import CustomUser
+from accounts.models import User
 
 
 # Create your models here.
@@ -23,7 +23,7 @@ class Institution(models.Model):
     categories = models.ManyToManyField(Category)
 
     def __str__(self):
-        return self.name
+        return self.name + " - " + self.description
 
 
 class Donation(models.Model):
@@ -37,4 +37,4 @@ class Donation(models.Model):
     pick_up_date = models.DateField()
     pick_up_time = models.TimeField()
     pick_up_comment = models.TextField()
-    user = models.ForeignKey(CustomUser, null=True, default=None, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, null=True, default=None, on_delete=models.SET_NULL)
